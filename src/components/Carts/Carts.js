@@ -3,9 +3,12 @@ import Modal from '../UI/Modal';
 import CartItem from './CartItem/CartItem';
 import classes from './Carts.module.css';
 import CartContext from '../../store/cart-context';
+import Checkout from '../formUsers/Checkout';
+import { useState } from 'react';
 
 const Carts = props => {
   const cartCtx = useContext(CartContext);
+  const [isConfirm, setIsConfirm] = useState(false);
   const isCartEmpty = cartCtx.items.length > 0;
   const totalAmount = `$${
     isCartEmpty ? cartCtx.totalAmount.toFixed(2) : '0.00'
@@ -32,6 +35,23 @@ const Carts = props => {
     </ul>
   );
 
+  const confirmHandler = e => {
+    setIsConfirm(true);
+  };
+
+  const toggleOrder = !isConfirm && (
+    <div className={classes.actions}>
+      <button className={classes['button--alt']} onClick={props.onClose}>
+        Close
+      </button>
+      {isCartEmpty && (
+        <button className={classes.button} onClick={confirmHandler}>
+          Order
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <Modal onClose={props.onClose}>
       {cartsList}
@@ -39,12 +59,8 @@ const Carts = props => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button className={classes['button--alt']} onClick={props.onClose}>
-          Close
-        </button>
-        {isCartEmpty && <button className={classes.button}>Order</button>}
-      </div>
+      {isConfirm && <Checkout onClick={props.onClose} />}
+      {toggleOrder}
     </Modal>
   );
 };
