@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useInput from '../../hooks/use-input';
 import classes from './Checkout.module.css';
 
 const Checkout = props => {
-  // const [isFormValid, setIsFormValid] = useState(false);
   const {
     enteredValue: enteredNameInput,
     isValid: isNameValid,
@@ -13,21 +12,43 @@ const Checkout = props => {
     resetValue: resetNameValue,
   } = useInput(value => value.trim() !== '');
 
+  const {
+    enteredValue: enteredAddressInput,
+    isValid: isAddressValid,
+    hasError: isAddressError,
+    changeValueHandler: changeAddressInputHandler,
+    touchedHandler: addressTouchedHandler,
+    resetValue: resetAddressValue,
+  } = useInput(value => value.trim() !== '');
+
+  const {
+    enteredValue: enteredCityInput,
+    isValid: isCityValid,
+    hasError: isCityError,
+    changeValueHandler: changeCityInputHandler,
+    touchedHandler: cityTouchedHandler,
+    resetValue: resetCityValue,
+  } = useInput(value => value.trim() !== '');
+
+  const inputErrorClasses = isError =>
+    `${classes.control} ${isError ? classes.invalid : ''}`;
+
   const submitHandler = e => {
     e.preventDefault();
-    const isFormInvalid = !isNameValid;
+    const isFormInvalid = !isNameValid || !isAddressValid || !isCityValid;
 
-    if (isFormInvalid) return;
+    if (isFormInvalid) {
+      return;
+    }
 
-    console.log(enteredNameInput);
     resetNameValue();
+    resetAddressValue();
+    resetCityValue();
   };
-
-  const nameClasses = `${classes.control} ${isNameError ? 'invalid' : ''}`;
 
   return (
     <form className={classes.form} onSubmit={submitHandler}>
-      <div className={nameClasses}>
+      <div className={inputErrorClasses(isNameError)}>
         <label htmlFor="name">Your Name</label>
         <input
           id="name"
@@ -35,6 +56,26 @@ const Checkout = props => {
           value={enteredNameInput}
           onChange={changeNameInputHandler}
           onBlur={nameTouchedHandler}
+        />
+      </div>
+      <div className={inputErrorClasses(isAddressError)}>
+        <label htmlFor="address">Your Address</label>
+        <input
+          id="address"
+          type="text"
+          value={enteredAddressInput}
+          onChange={changeAddressInputHandler}
+          onBlur={addressTouchedHandler}
+        />
+      </div>
+      <div className={inputErrorClasses(isCityError)}>
+        <label htmlFor="city">City</label>
+        <input
+          id="city"
+          type="text"
+          value={enteredCityInput}
+          onChange={changeCityInputHandler}
+          onBlur={cityTouchedHandler}
         />
       </div>
       <div className={classes.actions}>
