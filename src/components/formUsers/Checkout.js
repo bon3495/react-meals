@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import useInput from '../../hooks/use-input';
 import classes from './Checkout.module.css';
+
+const isNotEmpty = value => value.trim() !== '';
+const inputErrorClasses = isError => {
+  return `${classes.control} ${isError ? classes.invalid : ''}`;
+};
 
 const Checkout = props => {
   const {
@@ -10,7 +15,7 @@ const Checkout = props => {
     changeValueHandler: changeNameInputHandler,
     touchedHandler: nameTouchedHandler,
     resetValue: resetNameValue,
-  } = useInput(value => value.trim() !== '');
+  } = useInput(isNotEmpty);
 
   const {
     enteredValue: enteredAddressInput,
@@ -19,7 +24,7 @@ const Checkout = props => {
     changeValueHandler: changeAddressInputHandler,
     touchedHandler: addressTouchedHandler,
     resetValue: resetAddressValue,
-  } = useInput(value => value.trim() !== '');
+  } = useInput(isNotEmpty);
 
   const {
     enteredValue: enteredCityInput,
@@ -28,15 +33,16 @@ const Checkout = props => {
     changeValueHandler: changeCityInputHandler,
     touchedHandler: cityTouchedHandler,
     resetValue: resetCityValue,
-  } = useInput(value => value.trim() !== '');
-
-  const inputErrorClasses = isError =>
-    `${classes.control} ${isError ? classes.invalid : ''}`;
+  } = useInput(isNotEmpty);
 
   const submitHandler = e => {
     e.preventDefault();
-    const isFormInvalid = !isNameValid || !isAddressValid || !isCityValid;
 
+    nameTouchedHandler();
+    addressTouchedHandler();
+    cityTouchedHandler();
+
+    const isFormInvalid = !isNameValid || !isAddressValid || !isCityValid;
     if (isFormInvalid) {
       return;
     }
@@ -44,6 +50,12 @@ const Checkout = props => {
     resetNameValue();
     resetAddressValue();
     resetCityValue();
+
+    props.onOrderConfirm({
+      name: enteredNameInput,
+      address: enteredAddressInput,
+      city: enteredCityInput,
+    });
   };
 
   return (
