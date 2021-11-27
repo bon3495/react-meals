@@ -1,14 +1,15 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext, Fragment } from 'react';
 import Modal from '../UI/Modal';
 import CartItem from './CartItem/CartItem';
 import classes from './Carts.module.css';
 import CartContext from '../../store/cart-context';
 import Checkout from '../formUsers/Checkout';
-import { useState } from 'react';
+import useHttp from '../../hooks/use-http';
 
 const Carts = props => {
   const cartCtx = useContext(CartContext);
   const [isConfirm, setIsConfirm] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const isCartEmpty = cartCtx.items.length > 0;
   const totalAmount = `$${
     isCartEmpty ? cartCtx.totalAmount.toFixed(2) : '0.00'
@@ -52,8 +53,36 @@ const Carts = props => {
     </div>
   );
 
-  return (
-    <Modal onClose={props.onClose}>
+  const {
+    sendRequest: sendOrderForm,
+    error: errorOrderSubmit,
+    isLoading,
+  } = useHttp();
+
+  const orderConfirmHandler = form => {
+    const ordersForm = {
+      orderItems: cartCtx.items,
+      user: form,
+      totalAmount: cartCtx.totalAmount.toFixed(2),
+    };
+
+    sendOrderForm(
+      {
+        url: 'https://react-custom-hooks-5f0f7-default-rtdb.firebaseio.com/meals-orders.json',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: ordersForm,
+      },
+      data => {
+        console.log(data);
+      }
+    );
+    setDidSubmit(true);
+    cartCtx.clearItems();
+  };
+
+  let modalContent = (
+    <Fragment>
       {cartsList}
       <div className={classes.total}>
         <span>Total Amount</span>
@@ -64,11 +93,29 @@ const Carts = props => {
           onClick={props.onClose}
           items={cartCtx.items}
           totalAmount={cartCtx.totalAmount}
+          onOrderConfirm={orderConfirmHandler}
         />
       )}
       {!isConfirm && modalActions}
-    </Modal>
+    </Fragment>
   );
+
+  if (isLoading) modalContent = <p>Sending order data...</p>;
+  if (!isLoading && didSubmit)
+    modalContent = (
+      <Fragment>
+        <p>Successfully sent the order!</p>
+        <div className={classes.actions}>
+          <button className={classes.button} onClick={props.onClose}>
+            Close
+          </button>
+        </div>
+      </Fragment>
+    );
+  if (errorOrderSubmit)
+    modalContent = <p>Sending order data error. Try again!</p>;
+
+  return <Modal onClose={props.onClose}>{modalContent}</Modal>;
 };
 
 export default Carts;

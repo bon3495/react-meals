@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import useInput from '../../hooks/use-input';
 import classes from './Checkout.module.css';
 
@@ -8,12 +8,6 @@ const inputErrorClasses = isError => {
 };
 
 const Checkout = props => {
-  const [formInputValidity, setFormInputValidity] = useState({
-    name: false,
-    address: false,
-    city: false,
-  });
-
   const {
     enteredValue: enteredNameInput,
     isValid: isNameValid,
@@ -57,20 +51,10 @@ const Checkout = props => {
     resetAddressValue();
     resetCityValue();
 
-    const items = props.items.map(item => {
-      return {
-        name: item.name,
-        amount: item.amount,
-        price: item.price,
-      };
-    });
-
-    console.log({
+    props.onOrderConfirm({
       name: enteredNameInput,
       address: enteredAddressInput,
       city: enteredCityInput,
-      items,
-      totalAmount: props.totalAmount,
     });
   };
 
