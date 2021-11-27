@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useInput from '../../hooks/use-input';
 import classes from './Checkout.module.css';
 
 const isNotEmpty = value => value.trim() !== '';
+const inputErrorClasses = isError => {
+  return `${classes.control} ${isError ? classes.invalid : ''}`;
+};
 
 const Checkout = props => {
+  const [formInputValidity, setFormInputValidity] = useState({
+    name: false,
+    address: false,
+    city: false,
+  });
+
   const {
     enteredValue: enteredNameInput,
     isValid: isNameValid,
@@ -32,16 +41,18 @@ const Checkout = props => {
     resetValue: resetCityValue,
   } = useInput(isNotEmpty);
 
-  const inputErrorClasses = isError =>
-    `${classes.control} ${isError ? classes.invalid : ''}`;
-
   const submitHandler = e => {
     e.preventDefault();
-    const isFormInvalid = !isNameValid || !isAddressValid || !isCityValid;
 
+    nameTouchedHandler();
+    addressTouchedHandler();
+    cityTouchedHandler();
+
+    const isFormInvalid = !isNameValid || !isAddressValid || !isCityValid;
     if (isFormInvalid) {
       return;
     }
+
     resetNameValue();
     resetAddressValue();
     resetCityValue();
