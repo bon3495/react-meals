@@ -39,7 +39,7 @@ const Carts = props => {
     setIsConfirm(true);
   };
 
-  const toggleOrder = !isConfirm && (
+  const modalActions = (
     <div className={classes.actions}>
       <button className={classes['button--alt']} onClick={props.onClose}>
         Close
@@ -59,8 +59,14 @@ const Carts = props => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isConfirm && <Checkout onClick={props.onClose} />}
-      {toggleOrder}
+      {isConfirm && (
+        <Checkout
+          onClick={props.onClose}
+          items={cartCtx.items}
+          totalAmount={cartCtx.totalAmount}
+        />
+      )}
+      {!isConfirm && modalActions}
     </Modal>
   );
 };

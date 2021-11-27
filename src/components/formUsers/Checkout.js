@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import useInput from '../../hooks/use-input';
 import classes from './Checkout.module.css';
+
+const isNotEmpty = value => value.trim() !== '';
 
 const Checkout = props => {
   const {
@@ -10,7 +12,7 @@ const Checkout = props => {
     changeValueHandler: changeNameInputHandler,
     touchedHandler: nameTouchedHandler,
     resetValue: resetNameValue,
-  } = useInput(value => value.trim() !== '');
+  } = useInput(isNotEmpty);
 
   const {
     enteredValue: enteredAddressInput,
@@ -19,7 +21,7 @@ const Checkout = props => {
     changeValueHandler: changeAddressInputHandler,
     touchedHandler: addressTouchedHandler,
     resetValue: resetAddressValue,
-  } = useInput(value => value.trim() !== '');
+  } = useInput(isNotEmpty);
 
   const {
     enteredValue: enteredCityInput,
@@ -28,7 +30,7 @@ const Checkout = props => {
     changeValueHandler: changeCityInputHandler,
     touchedHandler: cityTouchedHandler,
     resetValue: resetCityValue,
-  } = useInput(value => value.trim() !== '');
+  } = useInput(isNotEmpty);
 
   const inputErrorClasses = isError =>
     `${classes.control} ${isError ? classes.invalid : ''}`;
@@ -40,10 +42,25 @@ const Checkout = props => {
     if (isFormInvalid) {
       return;
     }
-
     resetNameValue();
     resetAddressValue();
     resetCityValue();
+
+    const items = props.items.map(item => {
+      return {
+        name: item.name,
+        amount: item.amount,
+        price: item.price,
+      };
+    });
+
+    console.log({
+      name: enteredNameInput,
+      address: enteredAddressInput,
+      city: enteredCityInput,
+      items,
+      totalAmount: props.totalAmount,
+    });
   };
 
   return (
